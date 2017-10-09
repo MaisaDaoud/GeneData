@@ -1,3 +1,4 @@
+#  For more about the data and survival analysis https://www.biostars.org/p/153013/
 setwd("/User/myUser/tutorial")
 library(survival)
 
