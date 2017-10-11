@@ -7,7 +7,7 @@ rna <- read.table('RNA/BRCA.rnaseqv2__illuminahiseq_rnaseqv2__unc_edu__Level_3__
 # and take off first row cause we don't need it
 rna <- rna[-1,]
 
-# first I remove genes whose expression is == 0 in more than 50% of the samples:
+# first remove genes whose expression is == 0 in more than 50% of the samples:
 rem <- function(x){
   x <- as.matrix(x)
   x <- t(apply(x,1,as.numeric))
