@@ -5,7 +5,8 @@ This project introduces some basics about downloading gene expression datasets f
 -  Select "Breast invasive carcinoma" -> "data" -> "Browse".
 -  From "mRNASeq" select "illuminahiseq_rnaseqv2-RSEM_genes_normalized" and save it on your computer.
 -  Unzip the folder and rename it to RNA.
-###### To Download and process data from GDC/TCGA repository https://portal.gdc.cancer.gov/ 
-- Use R to download and analyze data according to Download_Analyze_TCGA.R
+###### To Download and process data from GDC/TCGA
+- TCGA repository  https://portal.gdc.cancer.gov/ 
+- use  Download_Analyze_TCGA.R to doenload and analyse the data
 
  
