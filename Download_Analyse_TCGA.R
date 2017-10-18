@@ -1,7 +1,7 @@
 library(TCGAbiolinks)
 
 #create a folder for the project and name it "GeneExpressionProject"
-setsd('path /to/GeneExpressionProject')
+setwd('path /to/GeneExpressionProject')
 
 # Query platform Illumina HiSeq with a list of barcode 
 query <- GDCquery(project = "TCGA-BRCA", 
