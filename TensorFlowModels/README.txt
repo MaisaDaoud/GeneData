@@ -1,0 +1,1 @@
+-create a folder called data and download mnist dataset in data 
