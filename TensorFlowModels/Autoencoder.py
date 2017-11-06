@@ -28,9 +28,9 @@ class Autoencoder(object):
              continue
     
     self.data=np.array(self.data1)
-    print( len(self.data))
+    print( "[*] Sequence length:",len(self.data))
     self.data=self.data.transpose()
-    print(len(self.data))
+    print("[*] Number of Samples: ",len(self.data) )
     self.training_size=len(self.data) #training_size
     self.input_length = len(self.data[1])
     self.output_length = self.input_length
@@ -40,7 +40,7 @@ class Autoencoder(object):
     self.n_hidden_2=500
     self.n_hidden_3=250
     self.n_hidden_4=30
-    self.test_num= .2 * len(self.data)#20% of the # of samples
+    #self.test_num= .2 * len(self.data)#20% of the # of samples
     # Initialization Method 
   
      
@@ -84,8 +84,10 @@ class Autoencoder(object):
             self.training(training_samples)
             
         else:
-            
+            self.test()
+            '''
             self.test(testing_samples)
+            '''
             '''
             self.e_test=self.encoder(testing_samples)
             self.d_test=self.decoder(self.e_test)
@@ -112,25 +114,20 @@ class Autoencoder(object):
            print(" [*] Load SUCCESS")
         else:
            print(" [!] Load failed...")
-        # start training
-        #file = csv.reader(open(glob(os.path.join("./data",self.dataset,".csv")),r))
-        #file = csv.reader(open("C:/users/maisataheir/documents/GeneExpressionProject/TensorFlowModels/data/TCGA_BRCA_NT_scaled.csv","r"))
         
         for epoch in xrange(self.epochs):
-            #number of patches
-            #self.data = glob(os.path.join("./data", self.dataset, self.extension))
+            
             batch_idxs = min(len(self.data),self.training_size) // self.batch_size
+            
             #start trainning
             for idx in xrange(batch_idxs):
-                #batch_files = self.data[idx*self.batch_size:(idx+1)*self.batch_size]
-                #batch = [
-                    # get_sample(batch_file) for batch_file in batch_files]
+                
                 batch_samples = self.data[idx*self.batch_size:(idx+1)*self.batch_size]#np.array(batch).astype(np.float32)
+               
                 _, c = self.sess.run([optimizer, cost], feed_dict={X: self.mask_noise(np.reshape(batch_samples,[self.batch_size,self.n_input]),20)})
 
             if epoch % display_step == 0:
-                   print("Epoch:", '%04d' % (epoch+1),
-                  "cost=", "{:.9f}".format(c))
+                   print("Epoch:", '%04d' % (epoch+1),"cost=", "{:.9f}".format(c))
             if np.mod(counter, 2) == 0:
                    self.save(self.checkpoint_dir, counter)
             counter+=1
@@ -184,14 +181,28 @@ class Autoencoder(object):
                                    self.biases['decoder_b4']))
     
         return layer_4
-  def test(self,x):
+  def test(self):
         #saver.restore(sess,'./modelMultiDenoisedBad.ckpt')
+        X=tf.placeholder('float', [None,self.n_input])
+        self.e= self.encoder(X)
+        self.d= self.decoder(self.e)
+            
+        cost=tf.reduce_mean(tf.pow(self.d-X,2),1)
         could_load = self.load(self.checkpoint_dir)
         if could_load:
            
            print(" [*] Load SUCCESS")
         else:
            print(" [!] Load failed...")
+        
+        test_samples = self.data#np.array(batch).astype(np.float32)
+                #print("[***] patch samples shape = ",batch_samples.shape)
+        encode_decode = self.sess.run(cost, feed_dict={X: np.reshape(self.data,[len(self.data),self.n_input])})
+        print(encode_decode)
+        np.savetxt("{}_{}".format(self.dataset,"cost.csv"), encode_decode, delimiter=",")
+        reps = self.sess.run(self.e, feed_dict={X: np.reshape(self.data,[len(self.data),self.n_input])})
+        np.savetxt("{}_{}".format(self.dataset,"reps.csv"), np.transpose(reps, (0,1)), delimiter=",")
+
         '''
         images_list=mnist.test.images[:500]
         x=np.reshape(x,(1,784))
@@ -222,9 +233,10 @@ class Autoencoder(object):
     return x_noise
   @property
   def model_dir(self):
-        return "{}_{}_{}_{}".format(
-        self.dataset, self.batch_size, self.input_length, self.output_length)
-      
+        
+           return "{}_{}_{}_{}".format(
+           self.dataset, self.batch_size, self.input_length, self.output_length)
+        
   def save(self, checkpoint_dir, step):
         model_name = "Autoencoder.model"
         checkpoint_dir = os.path.join(checkpoint_dir, self.model_dir)
@@ -238,8 +250,20 @@ class Autoencoder(object):
   def load(self, checkpoint_dir):
         import re
         print(" [*] Reading checkpoints...")
-        checkpoint_dir = os.path.join(checkpoint_dir, self.model_dir)
-
+        if self.train: 
+           checkpoint_dir = os.path.join(checkpoint_dir, self.model_dir)
+        else:
+           
+            i=self.dataset.find("test")
+            if (i>0):
+                name= self.dataset[0:i-1] + "_train" + self.dataset[i+4:]
+                model_dir= "{}_{}_{}_{}".format(
+                name,self.batch_size,self.input_length,self.output_length)
+                            
+                print("[************] Model_dir = "+ model_dir)
+                checkpoint_dir = os.path.join(checkpoint_dir, model_dir)
+            else:
+                checkpoint_dir = os.path.join(checkpoint_dir, self.model_dir)
         ckpt = tf.train.get_checkpoint_state(checkpoint_dir)
         if ckpt and ckpt.model_checkpoint_path:
           ckpt_name = os.path.basename(ckpt.model_checkpoint_path)
@@ -250,3 +274,4 @@ class Autoencoder(object):
         else:
           print(" [*] Failed to find a checkpoint")
           return False
+
