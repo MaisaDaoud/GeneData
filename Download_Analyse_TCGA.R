@@ -25,7 +25,11 @@ dataNorm <- TCGAanalyze_Normalization(tabDF = dataBRCA, geneInfo =  geneInfo)
 dataFilt <- TCGAanalyze_Filtering(tabDF = dataNorm,
                                   method = "quantile", 
                                   qnt.cut =  0.25)
+#get the tumor subtypes 
+dataSubt <- TCGAquery_subtype(tumor = cancer)
+#lumA <- dataSubt[which(dataSubt$PAM50.mRNA == "Luminal A"),1]
 
+subtypes <- dataSubt$PAM50.mRNA
 # selection of normal samples "NT"
 samplesNT <- TCGAquery_SampleTypes(barcode = colnames(dataFilt),
                                    typesample = c("NT"))
