@@ -29,9 +29,18 @@ dataFilt <- TCGAanalyze_Filtering(tabDF = dataNorm,
 dataSubt <- TCGAquery_subtype(tumor = "BRCA")
 #lumA <- dataSubt[which(dataSubt$PAM50.mRNA == "Luminal A"),1]
 
-subtypes <- dataSubt$ BRCA_Subtype_PAM50
+subtypes <- dataSubt$BRCA_Subtype_PAM50
 head(subtypes)
-count(dataSubt$ BRCA_Subtype_PAM50)
+count(dataSubt,BRCA_Subtype_PAM50)
+######################
+ #   x freq
+#1  Basal  192
+#2   Her2   82
+#3   LumA  562
+#4   LumB  209
+#5     NA    2
+#6 Normal   40
+#####################
 
 # selection of normal samples "NT"
 samplesNT <- TCGAquery_SampleTypes(barcode = colnames(dataFilt),
