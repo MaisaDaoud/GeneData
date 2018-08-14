@@ -49,23 +49,36 @@ samplesNT <- TCGAquery_SampleTypes(barcode = colnames(dataFilt),
 # selection of tumor samples "TP"
 samplesTP <- TCGAquery_SampleTypes(barcode = colnames(dataFilt), 
                                    typesample = c("TP"))
-#01A = healthy sample,11A tumor sample some times 11A and 01A are from the same patient
+#01A = Tumor sample,11A healthy sample some times 11A and 01A are from the same patient
 samplesTP_with_known_subtype = dataSubt$patient[dataSubt$patient %in% substr(samplesTP,1,12)]
-# Diff.expr.analysis (DEA)
+class_labels = dataSubt$BRCA_Subtype_PAM50[dataSubt$patient %in%samplesTP_with_known_subtype]
+#dataFilt indecis
+indexLst<-which(substr(colnames(dataFilt),1,15)%in%paste(samplesTP_with_known_subtype,"-01",sep=""))
+dataFilt_update = dataFilt[,indexLst]
+ nrow(dataFilt_update)
+#[1] 14893
+ncol(dataFilt_update)
+#[1] 1083
+
+
+# Diff.expr.analysis (DEA)  '#mat2 = dataFilt[,samplesTP],
 dataDEGs <- TCGAanalyze_DEA(mat1 = dataFilt[,samplesNT],
-                            mat2 = dataFilt[,samplesTP],
+                            mat2 = dataFilt_update,
                             Cond1type = "Normal",
                             Cond2type = "Tumor",
                             fdr.cut = 0.01 ,
                             logFC.cut = 1,
                             method = "glmLRT")
 
-# DEGs table with expression values in normal and tumor samples
+# DEGs table with expression values in normal and tumor samples TCGAanalyze_LevelTab(dataDEGs,"Tumor","Normal",
+                                         # dataFilt[,samplesTP],dataFilt[,samplesNT])
 dataDEGsFiltLevel <- TCGAanalyze_LevelTab(dataDEGs,"Tumor","Normal",
-                                          dataFilt[,samplesTP],dataFilt[,samplesNT])
+                                          dataFilt_update,dataFilt[,samplesNT])
 #nrow(dataDEGsFiltLevel) #3509 def. expressed genes
 
 # take the indecies of the difretially expressed genes from (brca.exp) 
+indicies<-which(row.names(dataNorm) %in% row.names(dataDEGsFiltLevel))
+"
 indecies<-matrix(ncol=1,nrow= nrow(dataDEGsFiltLevel))
 i<-1
 
@@ -85,7 +98,7 @@ for(idx1 in 1:nrow(dataDEGsFiltLevel)){
       }
    
    idx2<-idx2+1
-   }}
+   }}"
  #Z_score across NT genes 
  #NT_mat<-dataNorm[,samplesNT]
  #scaling <- function(gene_for_samples){
@@ -108,15 +121,16 @@ write.table(samplesNT_mat2, "samplesNT_scaled.csv",
             sep = ",")
  #NT_mat2 : z_scores for normalized normal-samples
  #Z_score across TP samples genes
- samplesTP_mat<-dataNorm[indecies,samplesTP]
+samplesTP_mat<-dataNorm[indicies,colnames(dataFilt_update)]
+ #samplesTP_mat<-dataNorm[indecies,samplesTP]
  samplesTP_mat2<-matrix(,nrow(samplesTP_mat),ncol(samplesTP_mat))
  
   for(idx in 1:nrow(samplesTP_mat)){
  samplesTP_mat2[idx,]<-scale(samplesTP_mat[idx,])} # zero mean, one unit variance
 write.table(samplesTP_mat2, "samplesTP_scaled.csv",
             na = "",
-            row.names = TRUE,
-            col.names = TRUE,
+            row.names = FALSE,
+            col.names = FALSE,
             append = TRUE,
             sep = ",")
  # if you want both the normal and tumor samples in the same file
