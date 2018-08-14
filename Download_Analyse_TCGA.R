@@ -49,7 +49,8 @@ samplesNT <- TCGAquery_SampleTypes(barcode = colnames(dataFilt),
 # selection of tumor samples "TP"
 samplesTP <- TCGAquery_SampleTypes(barcode = colnames(dataFilt), 
                                    typesample = c("TP"))
-
+#01A = healthy sample,11A tumor sample some times 11A and 01A are from the same patient
+samplesTP_with_known_subtype = dataSubt$patient[dataSubt$patient %in% substr(samplesTP,1,12)]
 # Diff.expr.analysis (DEA)
 dataDEGs <- TCGAanalyze_DEA(mat1 = dataFilt[,samplesNT],
                             mat2 = dataFilt[,samplesTP],
