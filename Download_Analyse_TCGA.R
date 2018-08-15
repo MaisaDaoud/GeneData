@@ -1,4 +1,5 @@
 library(TCGAbiolinks)
+library(dplyr)
 #https://github.com/BioinformaticsFMRP/TCGAbiolinks/issues/156
 #create a folder for the project and name it "GeneExpressionProject"
 setwd('path /to/GeneExpressionProject')
