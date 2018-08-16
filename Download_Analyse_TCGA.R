@@ -43,6 +43,19 @@ count(dataSubt,BRCA_Subtype_PAM50)
 #6 Normal   40
 #####################
 
+#####################GBM project ###########
+''' 
+  Original.Subtype     n
+  <fct>            <int>
+1 Classical          146
+2 G-CIMP              39
+3 Mesenchymal        157
+4 Neural              83
+5 Proneural           99
+6 <NA>                82
+'''
+#############################################
+
 # selection of normal samples "NT"
 samplesNT <- TCGAquery_SampleTypes(barcode = colnames(dataFilt),
                                    typesample = c("NT"))
