@@ -63,18 +63,24 @@ samplesNT <- TCGAquery_SampleTypes(barcode = colnames(dataFilt),
 # selection of tumor samples "TP"
 samplesTP <- TCGAquery_SampleTypes(barcode = colnames(dataFilt), 
                                    typesample = c("TP"))
-#01A = Tumor sample,11A healthy sample some times 11A and 01A are from the same patient
+#01A = Tumor sample,11A healthy sample some times 11A and 01A are from the same patient, 01B 
+# means samples of the same aliquots from the same biopsy from the same patient,
 samplesTP_with_known_subtype = dataSubt$patient[dataSubt$patient %in% substr(samplesTP,1,12)]
+pat_id_label = dataSubt$patient[dataSubt$patient %in%samplesTP_with_known_subtype]
 class_labels = dataSubt$BRCA_Subtype_PAM50[dataSubt$patient %in%samplesTP_with_known_subtype]
 #dataFilt indecis
 indexLst<-which(substr(colnames(dataFilt),1,15)%in%paste(samplesTP_with_known_subtype,"-01",sep=""))
+
 dataFilt_update = dataFilt[,indexLst]
+patient_ids = colnames(dataFilt)[indexLst]
+
+                                
  nrow(dataFilt_update)
 #[1] 14893
 ncol(dataFilt_update)
 #[1] 1083
 
-
+match_class_data= class_labels[which(substr(patient_ids,1,12)%in%pat_id_label)]
 # Diff.expr.analysis (DEA)  '#mat2 = dataFilt[,samplesTP],
 dataDEGs <- TCGAanalyze_DEA(mat1 = dataFilt[,samplesNT],
                             mat2 = dataFilt_update,
